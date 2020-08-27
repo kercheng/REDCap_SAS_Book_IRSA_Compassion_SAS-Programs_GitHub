@@ -1,5 +1,5 @@
 /* Edit the following line to reflect the full path to your CSV file */
-%let csv_file = "C:/Users/ChenKer/SASUniversityEdition/myfolders/REDCap_SAS_Book_IRSA/Compassion/Raw Data/PHASE2ProjectCompass_DATA_NOHDRS_2020-08-18_1419.csv";
+%let csv_file = "&path/PHASE2ProjectCompass_DATA_NOHDRS_2020-08-24_1144.csv";
 
 OPTIONS nofmterr;
 
@@ -324,5 +324,5 @@ data redcap;
 run;
 
 proc contents data=redcap;
-proc print data=redcap;
+/*proc print data=redcap;*/
 run;

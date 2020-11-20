@@ -1511,3 +1511,7 @@ run;
 proc contents data=redcap;
 proc print data=redcap;
 run;
+
+data comp2.main; 
+	set work.redcap;
+run;

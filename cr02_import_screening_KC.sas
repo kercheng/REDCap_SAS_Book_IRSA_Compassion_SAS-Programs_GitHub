@@ -326,3 +326,7 @@ run;
 proc contents data=redcap;
 /*proc print data=redcap;*/
 run;
+
+data comp2.screening;
+	set work.redcap;
+run;

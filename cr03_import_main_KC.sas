@@ -1,5 +1,5 @@
 /* Edit the following line to reflect the full path to your CSV file */
-%let csv_file = "&path/PHASE2ProjectCompass_DATA_NOHDRS_2020-08-24_1142.csv";
+%let csv_file = "/folders/myfolders/REDCap_SAS_Book_IRSA/Compassion/Raw Data/PHASE2ProjectCompass_DATA_NOHDRS_2020-08-24_1142.csv";
 
 OPTIONS nofmterr;
 

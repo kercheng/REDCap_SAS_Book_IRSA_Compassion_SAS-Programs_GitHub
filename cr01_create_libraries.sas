@@ -7,12 +7,7 @@ Run cr00, cr01, etc.*/
 
 /*Create SAS libraries for SAS Studio
 Highlight code-chunk (lines 3-5) and run.*/
-libname comp2 "/folders/myfolders/REDCap_SAS_Book_IRSA/Compassion/SAS Data";
-options fmtsearch=(comp2);
+libname irsa "/folders/myfolders/REDCap_SAS_Book_IRSA/Compassion/SAS Data";
+options fmtsearch=(irsa);
 run;
 
-*Create SAS libraries (SAS Desktop)
-Do NOT run for SAS Studio;
-libname comp2 "&path";
-options fmtsearch=(comp2);
-run;

@@ -1,9 +1,12 @@
 /* Edit the following line to reflect the full path to your CSV file */
-%let csv_file = "/folders/myfolders/REDCap_SAS_Book_IRSA/Compassion/Raw Data/PHASE2ProjectCompass_DATA_NOHDRS_2020-11-23_1330.csv";
+%let csv_file = '/folders/myfolders/REDCap_SAS_Book_IRSA/Compassion/Raw Data/PHASE2ProjectCompass_DATA_NOHDRS_2020-11-23_1330.csv';
 
 OPTIONS nofmterr;
 
 proc format;
+	value $redcap_event_name_ d0_enrollment_arm_1='D0_Enrollment' d7_adherence_1_arm_1='D7_Adherence_1' 
+		d14_adherence_2_arm_1='D14_Adherence_2' d21_adherence_3_arm_1='D21_Adherence_3' 
+		d30_adherence_4_arm_1='D30_Adherence_4' d60_arm_1='D60';
 	value $redcap_repeat_instrument_ ad_hoc_log='Ad Hoc Log';
 	value information_form_complete_ 0='Incomplete' 1='Unverified' 
 		2='Complete';
@@ -23,7 +26,7 @@ proc format;
 	value home_internet_yn_ 1='Yes' 0='No';
 	value eligibility_screenin_v_1_ 0='Incomplete' 1='Unverified' 
 		2='Complete';
-	value consented_ 0='I do not want...articipate' 1='I want to participate';
+	value consented_ 0='I do not want to participate' 1='I want to participate';
 	value decline_reason___1_ 0='Unchecked' 1='Checked';
 	value decline_reason___2_ 0='Unchecked' 1='Checked';
 	value decline_reason___3_ 0='Unchecked' 1='Checked';
@@ -38,8 +41,8 @@ proc format;
 	value enroll_ineligible_reasons___3_ 0='Unchecked' 1='Checked';
 	value enroll_ineligible_reasons___4_ 0='Unchecked' 1='Checked';
 	value enroll_ineligible_reasons___5_ 0='Unchecked' 1='Checked';
-	value enrollment_status_ 1='Participant i...ng consent' 2='Participant i...No consent' 
-		3='Participant i...sent given';
+	value enrollment_status_ 1='Participant is not enrolled in the study: Interested and awaiting consent' 2='Participant is not enrolled in the study: No consent' 
+		3='Participant is enrolled in the study: Informed consent given';
 	value arm_ 1='Coaching Call' 2='Adherence Email';
 	value enrollment_informati_v_2_ 0='Incomplete' 1='Unverified' 
 		2='Complete';
@@ -55,8 +58,10 @@ data work.redcap; %let _EFIERR_ = 0;
 infile &csv_file  delimiter = ',' MISSOVER DSD lrecl=32767 firstobs=1 ;
 
 	informat record_id $500. ;
+	informat redcap_event_name $500. ;
 	informat redcap_repeat_instrument $500. ;
 	informat redcap_repeat_instance best32. ;
+	informat information_form_timestamp $500. ;
 	informat information_form_complete best32. ;
 	informat baseline_call_date yymmdd10. ;
 	informat baseline_call_start time5. ;
@@ -111,8 +116,10 @@ infile &csv_file  delimiter = ',' MISSOVER DSD lrecl=32767 firstobs=1 ;
 	informat ad_hoc_log_complete best32. ;
 
 	format record_id $500. ;
-	format redcap_repeat_instrument $redcap_repeat_instrument_. ;
+	format redcap_event_name $500. ;
+	format redcap_repeat_instrument $500. ;
 	format redcap_repeat_instance best12. ;
+	format information_form_timestamp $500. ;
 	format information_form_complete best12. ;
 	format baseline_call_date yymmdd10. ;
 	format baseline_call_start time5. ;
@@ -168,8 +175,10 @@ infile &csv_file  delimiter = ',' MISSOVER DSD lrecl=32767 firstobs=1 ;
 
 input
 	record_id $
+	redcap_event_name $
 	redcap_repeat_instrument $
 	redcap_repeat_instance
+	information_form_timestamp $
 	information_form_complete
 	baseline_call_date
 	baseline_call_start
@@ -231,45 +240,47 @@ proc contents;run;
 data redcap;
 	set redcap;
 	label record_id='Record ID';
+	label redcap_event_name='Event Name';
 	label redcap_repeat_instrument='Repeat Instrument';
 	label redcap_repeat_instance='Repeat Instance';
+	label information_form_timestamp='Survey Timestamp';
 	label information_form_complete='Complete?';
 	label baseline_call_date='Today''s Date:';
 	label baseline_call_start='Start Time:';
-	label answer='[first_name]''s phone number: [phone_number]...swer the phone?';
-	label voicemail='READ: -Hi [first_name], this is [staff_bas...voicemail?';
-	label time_yn='READ: -Hi [first_name], this is [staff_bas...minutes? ';
-	label baseline_call_yn='READ: Great! I''ll explain the whole study...the study?';
-	label reschedule_date='No problem at all! When would be a good da...ll you back? ';
-	label reschedule_time='What time can we call you back at?  Thank...ve a good day!';
-	label reschedule_action1='ACTION ITEM: Did you schedule the phone cal...study calendar?';
-	label reschedule_action2='ACTION ITEM: Did you schedule the phone cal...tlook calendar?';
-	label baseline_email_yn='ACTION ITEM: Did you send the participan...oogle doc)?';
-	label schedule='Let''s schedule this coaching call right now...t the call.****';
+	label answer='[first_name]''s phone number: [phone_number]  Did [first_name] answer the phone?';
+	label voicemail='READ: -Hi [first_name], this is [staff_baseline] from University of Pennsylvania -Reaching out about the Compassion Project research study that you expressed interest in -We are excited that you are interested! -I wanted to discuss the study with you for around 10 minutes and have you do a few tasks on a computer  -If you are interested in participating, please call us back at 215-746-7465 Did you leave a voicemail?';
+	label time_yn='READ: -Hi [first_name], this is [staff_baseline] from University of Pennsylvania -how are you? -Reaching out about the Compassion Project research study that you expressed interest in -We are excited that you are interested and we really appreciate that you emailed us to participate! Right now, I want to talk to you for a few minutes about the study, determine your eligibility, and have you do a few tasks on a computer  -Do you have time to talk for 20 minutes? ';
+	label baseline_call_yn='READ: Great! I''ll explain the whole study now, but please let me know if you have any questions: Purpose: test if a compassion training session, which was developed at Stanford University, is helpful when used on a smartphone. This training is a 13 minute audio file designed to strengthen your compassion for yourself and then extend that compassion to other people. It trains people to be attentive to the compassion that they feel for themselves and the compassion that they feel for other people. Responsibilities: complete the compassion training session three times a week for two weeks. we''ll email you later with instructions to download the app. You can do the compassion training more than three times a week if you''d like, but we ask that you do it at least three times a week. After you finish the two weeks, we''ll ask you to delete the app. Time and location: anytime and anywhere; it is up to you to decide when you''d like to do the compassion training Does everything make sense so far? Participation is voluntary: you do not have to be a part of the study if you do not want to Surveys: complete before the training, at the end of the training, and 2 weeks after the training. 5 minutes to complete all of the surveys. The baseline surveys take a few more minutes because we ask about demographic information before you start the compassion training. Timeline: After you complete the two-week intervention, we''ll email you to complete the surveys again and then to delete the app. There is a 2 week gap between the end of the intervention and when we email you to complete follow-up surveys. During those 2 weeks, there is nothing for you to do in regards to the compassion training. No compensation: you do not get paid to participate → HOWEVER, you get access to the compassion training, which is considered treatment, for free Questions or concerns? Would you like to participate in the study?';
+	label reschedule_date='No problem at all! When would be a good day to call you back? ';
+	label reschedule_time='What time can we call you back at?  Thank you so much! We have you in our schedule. Have a good day!';
+	label reschedule_action1='ACTION ITEM: Did you schedule the phone call in REDCap study calendar?';
+	label reschedule_action2='ACTION ITEM: Did you schedule the phone call in Outlook calendar?';
+	label baseline_email_yn='ACTION ITEM: Did you send the participant the Baseline Email (go to Compassion Emails google doc)?';
+	label schedule='Let''s schedule this coaching call right now! I''ll open up my schedule. [Open your Outlook calendar].  This call should be 8 days from now. What time on [day], [date] works for you?   If that day isn''t good, what time the next day on [day], [date] works for you?  ****If you''re not available, schedule with whatever time works for the participant for CJ to conduct the call.****';
 	label baseline_phone_call_complete='Complete?';
 	label eligibility_screenin_v_0='Survey Timestamp';
 	label english_yn='Are you able to speak English?';
 	label age_18_yn='Are you 18 years or older?';
-	label hcp_yn='Are you a healthcare professional working a...f Pennsylvania?';
+	label hcp_yn='Are you a healthcare professional working at a hospital affiliated with the University of Pennsylvania?';
 	label smartphone_yn='Do you have a smartphone?';
 	label home_internet_yn='Do you have internet from home?';
 	label eligibility_screenin_v_1='Complete?';
 	label consent_form_timestamp='Survey Timestamp';
 	label consented='Would you like to participate in this research study?';
 	label consent_date='Today''s Date (mm/dd/yyyy)';
-	label decline_reason___1='We hope to improve people''s health with our...ll that apply). (choice=I do not unde...the study)';
-	label decline_reason___2='We hope to improve people''s health with our...ll that apply). (choice=I am concerne...the study)';
-	label decline_reason___3='We hope to improve people''s health with our...ll that apply). (choice=I do not want...nformation)';
-	label decline_reason___4='We hope to improve people''s health with our...ll that apply). (choice=I do not want...he website)';
-	label decline_reason___5='We hope to improve people''s health with our...ll that apply). (choice=I am not read...y behavior)';
-	label decline_reason___6='We hope to improve people''s health with our...ll that apply). (choice=Other)';
+	label decline_reason___1='We hope to improve people''s health with our research. We are wondering why you decided not to participate in our study. Please tell us why you chose not to participate (choose all that apply). (choice=I do not understand the study)';
+	label decline_reason___2='We hope to improve people''s health with our research. We are wondering why you decided not to participate in our study. Please tell us why you chose not to participate (choose all that apply). (choice=I am concerned about the risks of the study)';
+	label decline_reason___3='We hope to improve people''s health with our research. We are wondering why you decided not to participate in our study. Please tell us why you chose not to participate (choose all that apply). (choice=I do not want to provide my social security number or other financial information)';
+	label decline_reason___4='We hope to improve people''s health with our research. We are wondering why you decided not to participate in our study. Please tell us why you chose not to participate (choose all that apply). (choice=I do not want to use the website)';
+	label decline_reason___5='We hope to improve people''s health with our research. We are wondering why you decided not to participate in our study. Please tell us why you chose not to participate (choose all that apply). (choice=I am not ready to change my behavior)';
+	label decline_reason___6='We hope to improve people''s health with our research. We are wondering why you decided not to participate in our study. Please tell us why you chose not to participate (choose all that apply). (choice=Other)';
 	label decline_other='If other, Please explain:';
 	label consent_form_complete='Complete?';
 	label enroll_subject_id='Subject ID:';
 	label enroll_consent_date='Consent Date: [consent_date]';
 	label enroll_date_screened='Date screened (today''s date):';
 	label eligibility='Is the participant eligible or ineligible?';
-	label enroll_ineligible_reasons___1='Ineligible reasons (Select all that apply) (choice=Not a healthc...ing at HUP)';
+	label enroll_ineligible_reasons___1='Ineligible reasons (Select all that apply) (choice=Not a healthcare professional working at HUP)';
 	label enroll_ineligible_reasons___2='Ineligible reasons (Select all that apply) (choice=Not 18)';
 	label enroll_ineligible_reasons___3='Ineligible reasons (Select all that apply) (choice=Did not complete surveys)';
 	label enroll_ineligible_reasons___4='Ineligible reasons (Select all that apply) (choice=No longer interested)';
@@ -285,6 +296,7 @@ data redcap;
 	label other_reason='If Other, please specify:';
 	label ad_hoc_contact_notes='Notes:';
 	label ad_hoc_log_complete='Complete?';
+	format redcap_event_name redcap_event_name_.;
 	format redcap_repeat_instrument redcap_repeat_instrument_.;
 	format information_form_complete information_form_complete_.;
 	format answer answer_.;
@@ -324,9 +336,9 @@ data redcap;
 run;
 
 proc contents data=redcap;
-/*proc print data=redcap;*/
+proc print data=redcap;
 run;
 
-data irsa.screening;
+data comp2.screening;
 	set work.redcap;
 run;

@@ -2,7 +2,7 @@
 Open GitHub repository (REDCap_SAS_Book_IRSA_Compassion_SAS-Programs_GitHub) and master branch.
 Open virtual machine. 
 Open SAS Studio.
-Download raw data from Box: https://upenn.box.com/s/rtjydivi6gn9ymdzwqig4ygx102djz1h.
+Downloadraw data from Box: https://upenn.box.com/s/rtjydivi6gn9ymdzwqig4ygx102djz1h.
 Run cr00, cr01, etc.*/
 
 /*Create SAS libraries for SAS Studio

@@ -1,25 +1,45 @@
-/*Data Cleanup
+/* Create Table 1: Baseline Demographics */
+/* IRSA Key Variables: */
+/* https://docs.google.com/spreadsheets/d/1h71LetCQCpLP0ndiau-j1Med5X_oigXC7nmwKfFZiBU/edit#gid=1278138539 */
 
-Familiarize yourself with the dataset before data cleanup.
--Look at REDCap Codebook or data dictionary.
--Look at REDCap Designer/data collection instruments & surveys.
--Create a dummy record. 
+proc print data = irsa.main; 
+run; 
 
-Identify key variables
--Look at REDCap Codebook or data dictionary.
--Think about your key outcomes (primary vs. secondary).
+/*Subset main for variables needed in Table 1*/
+data irsa.t1_sub; 
+	set irsa.main; 
+	keep record_id redcap_event_name age sex race ethnicity marital_status education employment_status; 
+	where redcap_event_name = 'd0_enrollment_arm_1' OR redcap_event_name = 'd0_enrollment_arm_2';
+run; 
 
-Document your key variables; create an analysis plan
-https://docs.google.com/spreadsheets/d/1h71LetCQCpLP0ndiau-j1Med5X_oigXC7nmwKfFZiBU/edit#gid=1278138539
-*/
+proc print data = irsa.t1_sub; 
+run; 
 
-/*Convert variable values from character to numeric or from numeric to character
-https://support.sas.com/kb/24/590.html*/
+/*Summary of continous variables*/
 
-data irsa.main_clean;
-	*retain record id;
-	set irsa.main;
-	*record_id_corr = input(record_id, informat.);
-	record_id_corr = record_id*1;
+/* proc means data = (datasetname); */
+/* var (continous_variable); */
+/* run; */
+
+proc means data = irsa.t1_sub;
+	var age;
 run;
 
+/* Note: proc means ignores missing data; uses only valid data.*/
+
+proc means data = irsa.t1_sub n nmiss mean std min max median;
+	var age;
+run;
+
+proc univariate data = irsa.t1_sub; 
+	var age; 
+run;
+
+/*Summary of categorical variables*/
+proc freq data = irsa.t1_sub; 
+	tables sex race ethnicity marital_status education employment_status; 
+run; 
+
+proc freq data = irsa.t1_sub; 
+	tables sex race ethnicity marital_status education employment_status / MISSING; 
+run; 

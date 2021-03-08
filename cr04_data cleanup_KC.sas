@@ -23,9 +23,50 @@ data irsa.main_clean;
 	record_id_corr = record_id*1;
 run;
 
+proc print data=irsa.screening;
+proc print data=irsa.main;
+
+proc sort data=irsa.screening; 
+	by record_id; 
+run; 
+
+proc sort data=irsa.main; 
+	by record_id;
+run; 
+
+data irsa.merge; 
+	merge irsa.screening irsa.main; 
+	by record_id;
+run; 
+
+proc print data=irsa.merge;
+
 /*Use proc contents to look at Type (Num or Char)*/
 proc contents data=irsa.screening;
 proc contents data=irsa.main;
+
+  
+DATA temp;
+	MERGE irsa.screening(IN=in_screening) irsa.main(IN=in_main);
+	BY record_id;
+ 
+/* Creating new variables using indicator variables */
+ 	screening = in_screening; 
+	main = in_main;
+
+PROC PRINT DATA=temp; 
+RUN;
+
+
+DATA irsa.merge_inner_join;
+	MERGE irsa.screening(IN=in_screening) irsa.main(IN=in_main);
+	BY record_id;
+	IF in_screening = 1 & in_main = 1;
+RUN;
+
+
+PROC PRINT DATA=irsa.merge_inner_join; 
+RUN;
 
 /*Exporting variable names to excel file. 
 Example using comp2.screening.*/
